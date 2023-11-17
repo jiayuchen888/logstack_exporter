@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"flag"
 	"net/http"
 	"os"
 	"time"
-  "flag"
 
 	"github.com/fsnotify/fsnotify"
-  "github.com/go-kit/log"
+	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/olivere/elastic/v7"
 	"github.com/prometheus/client_golang/prometheus"
@@ -19,7 +19,7 @@ import (
 )
 
 var (
-  logger = log.NewLogfmtLogger(os.Stderr)
+	logger = log.NewLogfmtLogger(os.Stderr)
 
 	logPresence = prometheus.NewGauge(
 		prometheus.GaugeOpts{
@@ -43,7 +43,7 @@ type Config struct {
 
 func main() {
 	// Parse command-line arguments
-  configFilePath := flag.String("config", "config.yaml", "Path to the configuration file")
+	configFilePath := flag.String("config", "config.yaml", "Path to the configuration file")
 	flag.Parse()
 
 	// Load configuration
@@ -52,12 +52,12 @@ func main() {
 	// Configure Elasticsearch client
 	client, err := newElasticsearchClient(config)
 	if err != nil {
-    level.Error(logger).Log("msg","Error creating Elasticsearch client:","err", err)
+		level.Error(logger).Log("msg", "Error creating Elasticsearch client:", "err", err)
 		os.Exit(1)
 	}
 
-  level.Info(logger).Log("msg","Starting logstack_exporter","version",version.Info())
-  level.Info(logger).Log("msg","Scarping elasticsearch","endpoint", config.ElasticsearchURL)
+	level.Info(logger).Log("msg", "Starting logstack_exporter", "version", version.Info())
+	level.Info(logger).Log("msg", "Scarping elasticsearch", "endpoint", config.ElasticsearchURL)
 
 	// HTTP handler for Prometheus metrics
 	http.Handle("/metrics", promhttp.Handler())
@@ -67,14 +67,14 @@ func main() {
 		for {
 			err := checkLogPresence(client, config)
 			if err != nil {
-        level.Error(logger).Log("msg", "Error", "err", err)
+				level.Error(logger).Log("msg", "Error", "err", err)
 			}
 
 			time.Sleep(5 * time.Minute)
 		}
 	}()
 
-  http.ListenAndServe(":9090", nil)
+	http.ListenAndServe(":9090", nil)
 
 }
 
@@ -87,14 +87,14 @@ func loadConfig(filePath string) Config {
 	viper.SetDefault("index_name", "your-index-name")
 	viper.SetDefault("log_message", "your-log-message")
 
-  // Check for the presence of environment variables for the username and password
+	// Check for the presence of environment variables for the username and password
 	if username := os.Getenv("ELASTIC_USERNAME"); username != "" {
 		viper.Set("elastic_username", username)
 	} else {
 		viper.SetDefault("elastic_username", "your-elastic-username")
 	}
 
-  	// Check for the presence of an environment variable for the password
+	// Check for the presence of an environment variable for the password
 	if password := os.Getenv("ELASTIC_PASSWORD"); password != "" {
 		viper.Set("elastic_password", password)
 	} else {
@@ -104,7 +104,7 @@ func loadConfig(filePath string) Config {
 	// Read configuration file
 	err := viper.ReadInConfig()
 	if err != nil {
-    level.Error(logger).Log("msg", "Error reading config file", "err", err)
+		level.Error(logger).Log("msg", "Error reading config file", "err", err)
 		os.Exit(1)
 	}
 
@@ -112,14 +112,14 @@ func loadConfig(filePath string) Config {
 	var config Config
 	err = viper.Unmarshal(&config)
 	if err != nil {
-    level.Error(logger).Log("msg", "Error unmarshaling config", "err", err)
+		level.Error(logger).Log("msg", "Error unmarshaling config", "err", err)
 		os.Exit(1)
 	}
 
 	// Watch for changes in the config file
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-    level.Info(logger).Log("msg", "Config file changed", "file", e.Name)
+		level.Info(logger).Log("msg", "Config file changed", "file", e.Name)
 		// Reload the configuration if it changes
 		viper.Unmarshal(&config)
 	})
@@ -140,7 +140,7 @@ func newElasticsearchClient(config Config) (*elastic.Client, error) {
 		elastic.SetURL(config.ElasticsearchURL),
 		elastic.SetBasicAuth(config.ElasticUsername, config.ElasticPassword),
 		elastic.SetHttpClient(httpClient),
-    elastic.SetSniff(false),
+		elastic.SetSniff(false),
 	)
 	if err != nil {
 		return nil, err
@@ -174,7 +174,7 @@ func checkLogPresence(client *elastic.Client, config Config) error {
 		return err
 	}
 
-  logPresence.Set(float64(searchResult.TotalHits()))
+	logPresence.Set(float64(searchResult.TotalHits()))
 
 	return nil
 }
