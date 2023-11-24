@@ -1,3 +1,3 @@
-elasticsearch_url: "https://127.0.01:9200"
-index_name: "name of index"
-log_message: "message content"
+scrape_uri: "https://elasticsearch_host:9200"
+scrape_index: "name of index"
+query_msg: "dummy message for log monitoring"
