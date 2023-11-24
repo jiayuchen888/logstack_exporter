@@ -27,9 +27,9 @@ Logstack Exporter can be run as a standalone binary.
 Create a configuration file named `config.yaml` with the following content:
 
 ```yaml
-elasticsearch_url: "https://your-elasticsearch-host:9200"
-index_name: "your-index-name"
-log_message: "your-log-message"
+scrape_url: "https://your-elasticsearch-host:9200"
+scrape_index: "your-index-name"
+query_msg: "your-log-message"
 ```
 
 #### Environment Variables
