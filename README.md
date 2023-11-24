@@ -1,75 +1,59 @@
 # Logstack Exporter
 
-Logstack Exporter is a Prometheus exporter that monitors the presence of a specific log message in Elasticsearch. It periodically checks if the specified log message has occurred within the last few minute.
-
-## Table of Contents
-- [Features](#features)
-- [Installation](#installation)
-  - [Configuration](#configuration)
-  - [Building and running](#building-and-running)
-- [Using Docker](#using-docker)
-- [Metrics](#metrics)
+The Logstack Exporter is a Prometheus exporter designed to collect metrics from Elasticsearch logs. It provides insights into log entries, including the timestamp and processing time.
 
 ## Features
 
-- Monitors the presence of a specific log message in Elasticsearch.
-- Exposes Prometheus metrics for log presence.
-- Configurable via a YAML configuration file and environment variables.
+- Collects metrics from Elasticsearch logs.
+- Exposes Prometheus metrics for monitoring and alerting.
 
-## Installation
+Tested on Elasticseach 8.
 
-Logstack Exporter can be run as a standalone binary.
+## Configuration
 
-### Configuration 
+The Logstack Exporter can be configured using command-line flags. Below are the available configuration options:
 
-#### Configuration file
+- `--scrape_uri`: Elasticsearch endpoint. (Default: `https://127.0.0.1:9092`)
+- `--scrape_index`: Elasticsearch index to scrape.
+- `--query_msg`: The message to match in the Elasticsearch index.
+- `--username`: The username to connect to Elasticsearch for the query. (Can be set using the `ELASTIC_USERNAME` environment variable)
+- `--password`: The password of the Elasticsearch user. (Can be set using the `ELASTIC_PASSWORD` environment variable)
 
-Create a configuration file named `config.yaml` with the following content:
-
-```yaml
-scrape_url: "https://your-elasticsearch-host:9200"
-scrape_index: "your-index-name"
-query_msg: "your-log-message"
+Example:
+```
+./logstack_exporter --scrape_uri=https://your-elasticsearch:9200 --scrape_index=my_logs --query_msg="error" --username=user --password=pass
 ```
 
-#### Environment Variables
+## Using Docker
 
-You have to set the following environment variables:
+### Build image
 
-- ELASTIC_USERNAME: Elasticsearch username.
-- ELASTIC_PASSWORD: Elasticsearch password.
-
-Expose the environment variables before running the binary.
-
-### Building and running
+Run the following commands from the project root directory.
 
 ```
-git clone https://github.com/jiayuchen888/logstack_exporter.git
-cd logstack_exporter
-make build
-./logstack_exporter -config config.yaml
+docker build -t logstack_exporter .
+```
+
+### Run
+```
+docker run -d -p 9090:9090 logstask_exporter \
+  --scrape_uri="https://elasticsearch_host:9200" --scrape_index="the-name-of-the-index-you-search" \
+  --query_msg="content-of-the-message-you-search" -e ELASTIC_USERNAME=uername -e ELASTIC_PASSWORD=password
 ```
 
 By default, Logstack Exporter listens on port 9090 for Prometheus metrics.
 
-## Using Docker
 
-You can build and run the Docker image using the following commands:
+## Collectors
+
+Exposed metrics:
 
 ```
-# Build the Docker image
-docker build -t logstack-exporter .
-
-# Run the Docker container
-docker run -p 9090:9090 -e ELASTIC_USERNAME=your-username -e ELASTIC_PASSWORD=your-password -v /path/to/your/config-file/folder/:/app/config/ logstack-exporter
+# HELP last_message_received_timestamp timestamp of the last log entry found in Unix seconds
+# TYPE last_message_received_timestamp gauge
+last_message_received_timestamp 1.700828282e+09
+# HELP lostack_processed_time Difference in seconds between log generated and arrival time in Logstash
+# TYPE lostack_processed_time gauge
+lostack_processed_time 2.165723
 ```
-
-
-## Metrics
-
-Logstack Exporter exposes the following Prometheus metric:
-
-- log_presence: Indicates the presence of the specified log message in the last 1 minute. The value is 1 if the log message is present, and 0 otherwise.
-
-
 
