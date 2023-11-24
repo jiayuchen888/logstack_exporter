@@ -16,9 +16,6 @@ FROM debian:bookworm-slim
 # Set the working directory to /app
 WORKDIR /app
 
-# Create config folder
-RUN mkdir -p /app/config
-
 # Copy the Logstack Exporter binary from the builder image
 COPY --from=builder /app/logstack_exporter .
 
@@ -26,4 +23,4 @@ COPY --from=builder /app/logstack_exporter .
 EXPOSE 9090
 
 # Run Logstack Exporter when the container starts
-CMD ["/app/logstack_exporter", "-config", "/app/config/config.yaml"]
+ENTRYPOINT ["/app/logstack_exporter"]

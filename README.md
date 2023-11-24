@@ -38,7 +38,7 @@ docker build -t logstack_exporter .
 ```
 docker run -d -p 9090:9090 logstask_exporter \
   --scrape_uri="https://elasticsearch_host:9200" --scrape_index="the-name-of-the-index-you-search" \
-  --query_msg="content-of-the-message-you-search" -e ELASTIC_USERNAME=uername -e ELASTIC_PASSWORD=password
+  --query_msg="content-of-the-message-you-search" --username=elastic_name --password=elastic_password
 ```
 
 By default, Logstack Exporter listens on port 9090 for Prometheus metrics.
